@@ -3,12 +3,12 @@
  */
 if (!angular.element.prototype.parents) {
     angular.element.prototype.parents = function() {
-        var res = [];
-        for (var i = 0; i < this.length; i++) {
-            var el = this[i];
-            while (el.parentNode && el.parentNode.nodeType == 1) {
-                res.push(el.parentNode);
+        var res = [], l = this.length, el;
+        for (var i = 0; i < l; i++) {
+            el = this[i];
+            while (el.parentNode && el.parentNode.nodeType == el.ELEMENT_NODE) {
                 el = el.parentNode;
+                res.push(el);
             }
         }
         return angular.element(res);
@@ -141,20 +141,7 @@ angular.module('ui.bootstrap.datetimepicker', ['ui.bootstrap.dateparser', 'ui.bo
                             ngModel.$setValidity('date', true);
                             return viewValue;
                         } else if (angular.isString(viewValue)) {
-                            var date = dateParser.parse(viewValue, dateFormat) || new Date(viewValue);
-
-                            // has problem parsing a time only, so create a date
-                            // with the time added on the end, and a dummy formatter
-                            // and use this to see if the time is valid
-                            if (scope.enableTime && !scope.enableDate) {
-                                if (viewValue.length == dateFormat.length) {
-                                    var timeFormat = 'EEE MMM dd yyyy ' + dateFormat;
-                                    var newTime = 'Fri Mar 12 2015 ' + viewValue;
-
-                                    date = dateParser.parse(newTime, timeFormat) || new Date(newTime);
-                                }
-                            }
-
+                            var date = dateParser.parse(viewValue, dateFormat);
                             if (isNaN(date)) {
                                 ngModel.$setValidity('date', false);
                                 return undefined;
